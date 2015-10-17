@@ -1,0 +1,13 @@
+{
+  "name": "comClub",
+  "version": "1.0.0",
+  "dependencies": {
+    "angular-pusher": "~0.0.14",
+    "angular": "~1.4.7",
+    "bootstrap": "~3.3.5",
+    "jquery": "latest"
+  },
+  "resolutions": {
+    "angular": "~1.4.7"
+  }
+}
