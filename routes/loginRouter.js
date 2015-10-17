@@ -1,49 +1,62 @@
 var express = require('express');
 var router = express.Router();
 
-
-
 router.get('/', function(req, res, next){
   res.render('mainMenu', {'title':"Comedy Club"});
 });
 
-router.get('/a', function(req, res, next){
-  res.render('gameRoom');
+router.get('/room/:roomNum', function(req, res, next){
+  if (req.session.playerid)
+    res.render('gameRoom');
+  else res.redirect('/');
 })
 
 
 router.post('/login', function(req, res, next) {
   var roomNum = req.body.roomNum;
-  if (!roomNum)
-    roomNum = '-';
-  var playername = req.body.playername;
+  console.log(req.body.roomNum);
+  var playerName = req.body.playerName;
 
   var db = require('../db/dbConfig')();
   var gameCollection = db.get('games');
-  var exists = true;
-  gameCollection.findOne({'roomNum':roomNum}), {}, function(err, result){
+  gameCollection.findOne({'roomNum':roomNum}, {}, function(err, result){
+    if (err){
+      console.log("An error ocurred");
+      next(err);
+    }
     if (result){
-      req.session.playerid = result.players.length;
+      req.session.playerid = String(roomNum)+result.players.length;
       result.players.push({
         'id':result.players.length.toString(36),
-        'playername':playername
+        'playerName':playerName
       });
       //This may cause problems, not sure if it's being done correctly here
-      gameCollection.update({'roomNum':noomNum}, {'$set':result});
+      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(){
+        res.redirect('room/'+req.body.roomNum);//Not sure why roomNum loses its value in the callbacks
+      });
     }else{
-      var roomNum = getAvailableRoomNumber(gameCollection, getRandomRoomCode());
-      var newRoom = {
-        "roomNum":roomNum,
-        'players':[{
-          'id':0,
-          'name':playerName
-        }]
-      }
+      getAvailableRoomNumber(gameCollection, getRandomRoomCode(), function(newNum){
+        roomNum = newNum;
+        console.log(roomNum);
+        req.session.playerid = String(roomNum)+'0';
+        var newRoom = {
+          "roomNum":roomNum,
+          'players':[{
+            'id':0,
+            'name':playerName
+          }]
+        }
+        gameCollection.insert(newRoom, function(err){
+          if (err){
+            console.log("Error occurred");
+            next(err);
+          }
+          res.redirect('room/'+roomNum);
+        });
+      });
     }
-  }
+  })
 });
-
-
 
 router.post('/make', function(req, res, next){
   var db = require('../db/dbConfig')();
@@ -63,18 +76,19 @@ router.post('/make', function(req, res, next){
 });
 
 
-
 var getRandomRoomCode = function(){
-  return (Math.Round(Math.random()*1000000)).toString(36);
+  return (Math.round(Math.random()*10000)).toString(16);
 }
 
-var getAvailableRoomNumber = function(gameCollection, roomNum){
+var getAvailableRoomNumber = function(gameCollection, roomNum, callback){
   gameCollection.findOne({'roomNum':roomNum}, {}, function(err, result)
   {
     if (result)
-      return findRoom(gameCollection, getRandomRoomCode)
-    else return roomNum;
-  })
+      callback(getAvailableRoomNumber(gameCollection, getRandomRoomCode));
+    else {
+      callback(roomNum);
+    }
+  });
 }
 
 
