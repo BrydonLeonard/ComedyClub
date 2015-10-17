@@ -1,0 +1,6 @@
+Game screen
+	Angular-pusher stuff on client side
+	interface
+	game cycle
+app.js
+	Write genuuid(). Or find some way of generating. I dunna
