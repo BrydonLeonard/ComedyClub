@@ -1,0 +1,21 @@
+comClub
+	games
+		roomNum
+		[players]
+			playerId
+			playerName
+		game
+			state
+			num
+			maxNum
+			[noun]
+			[verb]
+			[adverb]
+			[flavour]
+			[sentences]
+
+	words
+		noun
+		verb
+		adverb
+		flavour

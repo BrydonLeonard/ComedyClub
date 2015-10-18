@@ -1,0 +1,35 @@
+Room Requests
+	GET /room/roomNum
+		Will just render a room with the given room number
+
+	GET /room/roomNum/config
+		Replies with the room entry in the DB
+
+	GET /room/roomNum/players
+		Replies with the players in a room
+
+	GET /room/roomNum/state
+		Replies with the room's current game state
+			0 - pregame
+			1 - waitingSubmissions
+			2 - renderingSubmissions
+
+	POST /room/roomNum
+		Message to room must specify msgType field
+			0 - Readied up
+			1 - Word submission
+				Must also fill words field
+			2 - Word submission pass
+		Responses
+			Success: "0"
+			Invalid request: "-1"
+			Error occurred: "-2"
+
+
+	GET /room/roomNum/numSentences
+		Replies with the number of sentences available to be rendered if the room is in renderingSubmissions state
+		If room in incorrect state, responds with "-1"
+
+	GET /room/roomNum/sentence
+		Replies with a sentence constructed with the if the room is in renderingSubmissions state
+		If room in incorrect state, responds with "-1"

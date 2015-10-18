@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 
 var loginRouter = require('./routes/loginRouter');
+var gameRouter = require('./routes/gameRouter');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use(session({
 }));
 
 app.use('/', loginRouter);
+app.use('/room', gameRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

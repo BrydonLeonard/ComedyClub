@@ -12,7 +12,9 @@ var gameStates = {
 	'enterNoun':2,
 	'enterAdverb':3,
 	'enterFlavour':4,
-	'displaying':5
+	'displaying':5,
+	'waiting':6,
+	'joined':7,
 }
 var instructions = [
 	'You are now going to need to enter a series of words or phrases. \nPress the button when you\'re ready to begin.',

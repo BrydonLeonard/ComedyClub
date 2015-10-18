@@ -5,12 +5,6 @@ router.get('/', function(req, res, next){
   res.render('mainMenu', {'title':"Comedy Club"});
 });
 
-router.get('/room/:roomNum', function(req, res, next){
-  if (req.session.playerid)
-    res.render('gameRoom');
-  else res.redirect('/');
-})
-
 
 router.post('/login', function(req, res, next) {
   var roomNum = req.body.roomNum;
@@ -25,9 +19,9 @@ router.post('/login', function(req, res, next) {
       next(err);
     }
     if (result){
-      req.session.playerid = String(roomNum)+result.players.length;
+      req.session.playerId = String(roomNum)+result.players.length;
       result.players.push({
-        'id':result.players.length.toString(36),
+        'playerId':result.players.length.toString(36),
         'playerName':playerName
       });
       //This may cause problems, not sure if it's being done correctly here
@@ -38,12 +32,12 @@ router.post('/login', function(req, res, next) {
       getAvailableRoomNumber(gameCollection, getRandomRoomCode(), function(newNum){
         roomNum = newNum;
         console.log(roomNum);
-        req.session.playerid = String(roomNum)+'0';
+        req.session.playerId = String(roomNum)+'0';
         var newRoom = {
           "roomNum":roomNum,
           'players':[{
-            'id':0,
-            'name':playerName
+            'playerId':0,
+            'playerName':playerName
           }]
         }
         gameCollection.insert(newRoom, function(err){

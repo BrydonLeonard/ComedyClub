@@ -1,5 +1,8 @@
-module.exports = function(){
+module.exports = function(collection){
 	var mongo = require('mongodb');
 	var monk = require('monk');
-	return monk('mongodb://localhost:27017/comClub');
+	var db = monk('mongodb://localhost:27017/comClub');
+	if (collection)
+		return db.get(collection);
+	else return db;
 }
