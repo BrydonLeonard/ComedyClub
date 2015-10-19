@@ -33,3 +33,10 @@ Room Requests
 	GET /room/roomNum/sentence
 		Replies with a sentence constructed with the if the room is in renderingSubmissions state
 		If room in incorrect state, responds with "-1"
+
+Pusher events
+	Event details
+		Channel - Room number
+		Event name - "gameStateChange"
+		JSON data - {state:newStateCode}
+	When these events are triggered, the client must make a request to the server to retrieve the new server details
