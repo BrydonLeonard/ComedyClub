@@ -4,7 +4,7 @@ var Pusher = require('pusher');
 var gameManager = require('../managers/gameManager');
 
 var msgTypes = {
-	'readiedUp':0,
+	'startGame':0,
 	'wordSubmission':1
 }
 
@@ -46,27 +46,33 @@ router.get('/:roomNum/state', function(req, res ,next){
 });
 
 router.post('/:roomNum', function(req, res, next){
-	if (!req.body.msgType){
-		Console.log('Invalid room POST');
-		res.send('-1');
-	}else{
-		var gameCollection = require('../db/dbConfig')('games');
-		if (req.body.msgType == msgTypes.readiedUp)
-		{
-			gameCollection.update({"roomNum":req.params.roomNum},
-				{$set:{''}
-			)
-		}else if (req.body.msgType == msgTypes.wordSubmission)
-		{
-			if (!req.body.words)
-				req.send(responseTypes.invalid)
-			else{
-				gameManager.submitWords(req.params.roomNum, req.body.words, function(responseMessage){
-					res.send(responseMessage);
+	console.log('post received');
+	try{
+		if (req.body.data.msgType == null){
+			console.log('Invalid room POST');
+			res.send('-1');
+		}else{
+			var gameCollection = require('../db/dbConfig')('games');
+			if (req.body.data.msgType == msgTypes.startGame)
+			{
+				console.log('changing state');
+				gameManager.gameStart(req.params.roomNum, function(){
+					res.send('0');
 				});
+			}else if (req.body.data.msgType == msgTypes.wordSubmission)
+			{
+				console.log('accepting words');
+				if (req.body.data.words == null)
+					res.send(responseTypes.invalid)
+				else{
+					gameManager.submitWords(req.params.roomNum, req.body.data.words, function(responseMessage){
+						res.send(responseMessage);
+					});
+				}
 			}
 		}
-
+	}catch(err){
+		console.log(err);
 	}
 });
 

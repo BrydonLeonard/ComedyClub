@@ -16,9 +16,10 @@ Room Requests
 
 	POST /room/roomNum
 		Message to room must specify msgType field
-			0 - Readied up
-			1 - Word submission
+			0 - startGame
+			1 - wordSubmission
 				Must also fill words field
+					words:{noun,verb,adverb,flavour}
 			2 - Word submission pass
 		Responses
 			Success: "0"

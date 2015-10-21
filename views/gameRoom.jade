@@ -3,6 +3,7 @@ extends layout
 block moreImports
 	script(src="/javascripts/angular/angular.min.js")
 	script(src="/javascripts/angular-pusher/angular-pusher.min.js")
+	script(src="/javascripts/angular-sanitize/angular-sanitize.min.js")
 	script(src="/javascripts/game/gameScript.js")
 	link(rel="stylesheet", href="/javascripts/bootstrap/dist/css/bootstrap.min.css")
 	link(rel="stylesheet", href="/stylesheets/comClub.css")
@@ -11,7 +12,7 @@ block moreImports
 block content
 	div(class="container" ng-app="gameScreenApp", ng-controller="gameStateController")
 		div(class="panel panel-default main", id="output")
-			h3 {{instructions}}
+			h3(ng-bind-html="instructions")
 			div(class="btn-div")
 				button(class="btn btn-primary", ng-show="startButtonVisible", ng-click="advanceGameState()") Start
 				form(ng-show="entryFormVisible")
