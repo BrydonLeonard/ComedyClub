@@ -1,3 +1,8 @@
 TODO.txt
 data/
 node_modules/
+public/javascripts/angular
+public/javascripts/angular-pusher
+public/javascripts/angular-sanitize
+public/javascripts/bootstrap
+public/javascripts/jquery

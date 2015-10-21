@@ -46,7 +46,6 @@ router.get('/:roomNum/state', function(req, res ,next){
 });
 
 router.post('/:roomNum', function(req, res, next){
-	console.log('post received');
 	try{
 		if (req.body.data.msgType == null){
 			console.log('Invalid room POST');
@@ -55,13 +54,11 @@ router.post('/:roomNum', function(req, res, next){
 			var gameCollection = require('../db/dbConfig')('games');
 			if (req.body.data.msgType == msgTypes.startGame)
 			{
-				console.log('changing state');
 				gameManager.gameStart(req.params.roomNum, function(){
 					res.send('0');
 				});
 			}else if (req.body.data.msgType == msgTypes.wordSubmission)
 			{
-				console.log('accepting words');
 				if (req.body.data.words == null)
 					res.send(responseTypes.invalid)
 				else{
