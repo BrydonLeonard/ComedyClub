@@ -8,11 +8,9 @@ router.get('/', function(req, res, next){
 
 router.post('/login', function(req, res, next) {
   var roomNum = req.body.roomNum;
-  console.log(req.body.roomNum);
   var playerName = req.body.playerName;
 
-  var db = require('../db/dbConfig')();
-  var gameCollection = db.get('games');
+  var gameCollection = require('../db/dbConfig')('games');
   gameCollection.findOne({'roomNum':roomNum}, {}, function(err, result){
     if (err){
       console.log("An error ocurred");
@@ -31,8 +29,8 @@ router.post('/login', function(req, res, next) {
     }else{
       getAvailableRoomNumber(gameCollection, getRandomRoomCode(), function(newNum){
         roomNum = newNum;
-        console.log(roomNum);
         req.session.playerId = String(roomNum)+'0';
+				console.log('Room created ' + roomNum);
         var newRoom = {
           "roomNum":roomNum,
           'players':[{
@@ -53,8 +51,7 @@ router.post('/login', function(req, res, next) {
 });
 
 router.post('/make', function(req, res, next){
-  var db = require('../db/dbConfig')();
-  var gameCollection = db.get('games');
+  var gameCollection = require('../db/dbConfig')('games');
   var exists = true;
   var roomNum = 0;
   while (!exists){

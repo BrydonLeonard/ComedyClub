@@ -51,7 +51,11 @@ var SendWordsToServer = function($http)
 	$http.post('',{
 		data:{
 			msgType:msgTypes.wordSubmission,
-			words:storedWords
+			words:{
+				verb:storedWords[0],
+				noun:storedWords[1],
+				adverb:storedWords[2],
+				flavour:storedWords[3]}
 		}
 	},{}).then(function(response){
 		alert(response);
