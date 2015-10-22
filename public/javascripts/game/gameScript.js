@@ -6,6 +6,7 @@ var app = angular.module('gameScreenApp', ['doowb.angular-pusher','ngSanitize'])
 				.setOptions({});
 		}]);
 
+
 var gameStates = {
 	'ready':0,
 	'enterVerb':1,
@@ -31,6 +32,14 @@ var storedWords = ['','','',''];
 
 var gameState = gameStates.ready;
 
+
+var roomNum = window.location.href.split('/')[window.location.href.split('/').length-1];
+var socket = io('/'+roomNum);
+
+socket.on('sentences', function(data){
+	alert(data);
+});
+
 app.controller('gameStateController', function($scope, $http){
 	$scope.instructions = instructions[gameState];
 	$scope.startButtonVisible = true;
@@ -44,6 +53,7 @@ app.controller('gameStateController', function($scope, $http){
 
 var ProcessWordEntry = function(words){
 	storedWords[gameState-1] = words;
+	console.log(roomNum);
 }
 
 var SendWordsToServer = function($http)
