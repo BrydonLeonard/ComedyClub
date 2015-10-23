@@ -1,10 +1,4 @@
-var app = angular.module('gameScreenApp', ['doowb.angular-pusher','ngSanitize']).
-	config(['PusherServiceProvider',
-		function(PusherServiceProvider){
-			PusherServiceProvider.setToken('comClubKey')//Not sure if this needs to be unique between all game rooms. We'll see
-																									//If it does, maybe find some way of getting the room number when the new page is rendered
-				.setOptions({});
-		}]);
+var app = angular.module('gameScreenApp', ['ngSanitize']);
 
 
 var gameStates = {
@@ -15,7 +9,7 @@ var gameStates = {
 	'enterFlavour':4,
 	'displaying':5,
 	'waiting':6,
-	'joined':7,
+	'joined':7
 }
 var instructions = [
 	'You are now going to need to enter a series of words or phrases. <br />Press the button when you\'re ready to begin.',
@@ -45,8 +39,7 @@ var roomNum = window.location.href.split('/')[window.location.href.split('/').le
 var socket = io('http://localhost:3000');
 
 var getScope = function(){
-	var sel = 'div[ng-controller="gameStateManager"]';
-	console.log(angular.element(sel));
+	var sel = 'div[id="cont"]';
 	return angular.element(sel).scope();
 }
 
@@ -61,16 +54,15 @@ socket.on('sentence', function(data){
 
 socket.on('gameStateChange', function(data){
 	var scope = getScope();
-	if (data.newState == serverStates.renderingSubmissions){
+	if (data.state === serverStates.renderingSubmissions){
 		ChangeGameStateTo(gameStates.displaying, scope);
 		scope.entryFormVisible = false;
-	}
-	if (data.newState == serverStates.pregame){
+	}else	if (data.state === serverStates.pregame){
+		console.log(data.state);
 		ChangeGameStateTo(gameStates.ready, scope);
-		scope.startButtonVisible = false;
-		scope.entryFormVisible = true;
-	}
-	if (data.newState == serverStates.waitingSubmissions){
+		scope.startButtonVisible = true;
+		scope.entryFormVisible = false;
+	}else	if (data.state === serverStates.waitingSubmissions && gameState == gameStates.ready || gameState == gameStates.displaying){
 		ChangeGameStateTo(gameStates.ready, scope);
 		scope.startButtonVisible = true;
 		scope.entryFormVisible = false;

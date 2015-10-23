@@ -74,8 +74,12 @@ module.exports = function(){
 	var getAvailableRoomNumber = function(gameCollection, roomNum, callback){
 	  gameCollection.findOne({'roomNum':roomNum}, {}, function(err, result)
 	  {
-	    if (result)
-	      callback(getAvailableRoomNumber(gameCollection, getRandomRoomCode));
+	    if (result){
+				try{
+	      	callback(getAvailableRoomNumber(gameCollection, getRandomRoomCode));}
+				catch(err){
+					console.log(err);}
+			}
 	    else {
 	      callback(roomNum);
 	    }
