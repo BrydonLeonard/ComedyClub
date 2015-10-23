@@ -22,7 +22,16 @@ var instructions = [
 	'Enter a transitive verb. <br />This is something that someone can do <b>to</b> someone or something else. <br />Timmy <b>licked</b> a lollipop enthusiastically because it was delicious',
 	'Enter a common noun. <br />This is a <b>thing</b>. <br />Timmy licked <b>a lollipop</b> enthusiastically because it was delicious',
 	'Enter an adverb. <br />This is the manner in which someone does a verb. <br />Timmy licked a lollipop <b>enthusiastically</b> because it was delicious',
-	'Enter a <b>WORD</b>. <br />Timmy licked a lollipop enthusiastically <b>because it was delicious</b>']
+	'Enter a <b>WORD</b>. <br />Timmy licked a lollipop enthusiastically <b>because it was delicious</b>',
+	'null',
+	'Now waiting for the other players']
+
+var serverStates = {
+	'pregame':0,
+	'waitingSubmissions':1,
+	'renderingSubmissions':2,
+	'pregameNoRender':3
+}
 
 var msgTypes = {
 		'startGame':0,
@@ -32,12 +41,41 @@ var storedWords = ['','','',''];
 
 var gameState = gameStates.ready;
 
-
 var roomNum = window.location.href.split('/')[window.location.href.split('/').length-1];
-var socket = io('/'+roomNum);
+var socket = io('http://localhost:3000');
 
-socket.on('sentences', function(data){
-	alert(data);
+var getScope = function(){
+	var sel = 'div[ng-controller="gameStateManager"]';
+	console.log(angular.element(sel));
+	return angular.element(sel).scope();
+}
+
+
+socket.emit('roomConnect', {roomNum:roomNum});
+
+socket.on('sentence', function(data){
+	var scope = getScope();
+	scope.instructions = data.sentence;
+	scope.$apply();
+});
+
+socket.on('gameStateChange', function(data){
+	var scope = getScope();
+	if (data.newState == serverStates.renderingSubmissions){
+		ChangeGameStateTo(gameStates.displaying, scope);
+		scope.entryFormVisible = false;
+	}
+	if (data.newState == serverStates.pregame){
+		ChangeGameStateTo(gameStates.ready, scope);
+		scope.startButtonVisible = false;
+		scope.entryFormVisible = true;
+	}
+	if (data.newState == serverStates.waitingSubmissions){
+		ChangeGameStateTo(gameStates.ready, scope);
+		scope.startButtonVisible = true;
+		scope.entryFormVisible = false;
+	}
+	scope.$apply();
 });
 
 app.controller('gameStateController', function($scope, $http){
@@ -68,7 +106,6 @@ var SendWordsToServer = function($http)
 				flavour:storedWords[3]}
 		}
 	},{}).then(function(response){
-		alert(response);
 	});
 }
 
@@ -93,8 +130,9 @@ var AdvanceGameState = function($scope, $http){
 		case gameStates.enterNoun:{ChangeGameStateTo(gameStates.enterAdverb,$scope);}break;
 		case gameStates.enterAdverb:{ChangeGameStateTo(gameStates.enterFlavour,$scope);}break;
 		case gameStates.enterFlavour:{
-			ChangeGameStateTo(gameStates.displaying,$scope);
+			ChangeGameStateTo(gameStates.waiting,$scope);
 			SendWordsToServer($http);
+			$scope.entryFormVisible = false;
 		}break;
 		case gameStates.displaying:{
 		}break;

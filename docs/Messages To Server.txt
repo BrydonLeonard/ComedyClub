@@ -36,8 +36,13 @@ Room Requests
 		If room in incorrect state, responds with "-1"
 
 Pusher events
-	Event details
-		Channel - Room number
-		Event name - "gameStateChange"
-		JSON data - {state:newStateCode}
-	When these events are triggered, the client must make a request to the server to retrieve the new server details
+	Socket events
+		Client should listen to room '/'+roomNum
+		Server emits:
+			'sentence'
+				- sentence: New sentence to be displayed by client
+			'gameStateChange'
+				- state: New state of the game manager
+		Client emits:
+			'roomConnect'
+				- roomNum: Room number to join

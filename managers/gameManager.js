@@ -51,12 +51,9 @@ module.exports = function(){
 	}
 
 	gameManager.gameDisplay = function(roomNum){
-		console.log(roomNum);
 		gameManager.generateSentences(roomNum, function(numSentences){
 			if (numSentences > 0){
-				gameManager.configForDisplay(roomNum, numSentences, function(){
-										setTimeout(gameManager.nextSentence, 1000*15, roomNum);
-									});
+				gameManager.configForDisplay(roomNum, numSentences, function(){	});
 					}
 			});
 	}
@@ -67,8 +64,9 @@ module.exports = function(){
 				var gameCollection = require('../db/dbConfig')('games');
 				gameCollection.update({'roomNum':roomNum},{
 					$inc:{'game.num':1}
-				},function(){
-					gameManager.broadcastSentence(room);
+				});
+				gameManager.findRoom(roomNum, function(rm){
+					gameManager.broadcastSentence(rm);
 					setTimeout(gameManager.nextSentence, 1000*15, roomNum);
 				});
 			}else{
@@ -78,7 +76,6 @@ module.exports = function(){
 					'game.num':0,
 					'game.maxNum':0
 				}},function(){
-					console.log(roomNum);
 						gameManager.triggerStateChange(roomNum, gameStates.pregame);
 				});
 			}
@@ -112,20 +109,16 @@ module.exports = function(){
 		var gameCollection = require('../db/dbConfig')('games');
 		gameCollection.update({'roomNum':roomNum},{$set:{
 			'game.state':gameStates.renderingSubmissions,
-			'game.num':0,
+			'game.num':-1,
 			'game.maxNum':numSentences
 		}}, function(err){
 			if (err)
 				console.log(err)
 			else{
 				gameManager.triggerStateChange(roomNum, gameStates.renderingSubmissions);
-				gameManager.findRoom(roomNum,function(err, room){
-					console.log(room);
-					if (err)
-						console.log(err);
-					else
-						gameManager.broadcastSentence(room);
-						callback();
+				gameManager.findRoom(roomNum,function(room){
+					gameManager.nextSentence(roomNum);
+					callback();
 				});
 			}
 		});
@@ -133,15 +126,13 @@ module.exports = function(){
 
 	gameManager.broadcastSentence = function(room)
 	{
-		var nsp = io.of('/'+room.roomNum);
-		console.log('Room ' + room.roomNum + ' broadcasting sentence: ' + room.game.sentences[room.game.num] + ' (' + room.game.num + '/' + room.game.maxNum +')');
-		nsp.emit('sentence', {sentence:sentence});
+		console.log('Room ' + room.roomNum + ' broadcasting sentence: ' + room.game.sentences[room.game.num] + ' (' + (1.0*(room.game.num)+1) + '/' + room.game.maxNum +')');
+		io.sockets.in(room.roomNum).emit('sentence', {sentence:room.game.sentences[room.game.num]});
 	}
 
 	gameManager.triggerStateChange = function(roomNum, newState){
-		var nsp = io.of('/'+roomNum);
 		console.log('Room ' + roomNum + ' triggering state change to ' + gameManager.getKeyFromValue(gameStates, newState));
-		nsp.emit('gameStateChange', {state:newState});
+		io.sockets.in(roomNum).emit('gameStateChange', {state:newState});
 	}
 
 	gameManager.generateSentences = function(roomNum, callback){
@@ -173,7 +164,7 @@ module.exports = function(){
 			}
 			var gameCollection = require('../db/dbConfig')('games');
 			gameCollection.update({"roomNum":room.roomNum},
-			{$push:{'game.sentences':sentences}}, function(){
+			{$set:{'game.sentences':sentences}}, function(){
 				callback(sentences.length);
 			});
 		});
