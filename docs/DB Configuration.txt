@@ -4,6 +4,7 @@ comClub
 		[players]
 			playerId
 			playerName
+			playerSocket
 		game
 			state
 			num

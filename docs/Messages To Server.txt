@@ -26,6 +26,8 @@ Room Requests
 			Invalid request: "-1"
 			Error occurred: "-2"
 
+	GET /room/roomNum/playerID
+		Returns the player ID associated with the session
 
 	GET /room/roomNum/numSentences
 		Replies with the number of sentences available to be rendered if the room is in renderingSubmissions state
@@ -34,6 +36,11 @@ Room Requests
 	GET /room/roomNum/sentence
 		Replies with a sentence constructed with the if the room is in renderingSubmissions state
 		If room in incorrect state, responds with "-1"
+
+	GET /login
+		Adds player to room if it exists, otherwise creates a random room and adds them
+		Response will contain "playerID" field
+		The client must include this in the "roomConnect" message
 
 Pusher events
 	Socket events
@@ -46,3 +53,5 @@ Pusher events
 		Client emits:
 			'roomConnect'
 				- roomNum: Room number to join
+			'playerID'
+				-	playerID: player ID, to be connected to socket

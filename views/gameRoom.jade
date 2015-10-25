@@ -8,15 +8,19 @@ block moreImports
 	script(src="/javascripts/game/gameScript.js")
 	link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css", rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous")
 	link(rel="stylesheet", href="/stylesheets/comClub.css")
-	
+
 
 block content
 	div(class="container" ng-app="gameScreenApp", ng-controller="gameStateController", id="cont")
-		div(class="panel panel-default main", id="output")
-			h3(ng-bind-html="instructions")
-			div(class="btn-div")
-				button(class="btn btn-primary", ng-show="startButtonVisible", ng-click="advanceGameState()") Start
-				form(ng-show="entryFormVisible")
-					input(type="text", ng-model="wordsInput", ng-required="entryFormVisible")
-					button(class="btn btn-primary", ng-click="processWordEntry(wordsInput)") Submit
-		button(class="btn btn-danger") Leave
+		div (class="row")
+			div(class="col-sm-8")
+				div(class="panel panel-default main", id="output")
+					h3(ng-bind-html="instructions")
+					div(class="btn-div")
+						button(class="btn btn-primary", ng-show="startButtonVisible", ng-click="advanceGameState()") Start
+						form(ng-show="entryFormVisible")
+							input(type="text", ng-model="wordsInput", ng-required="entryFormVisible")
+							button(class="btn btn-primary", ng-click="processWordEntry(wordsInput)") Submit
+				button(class="btn btn-danger") Leave
+			div(class="col-sm-4")
+				ol(ng-model="playerList")

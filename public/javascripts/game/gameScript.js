@@ -70,7 +70,13 @@ socket.on('gameStateChange', function(data){
 	scope.$apply();
 });
 
-app.controller('gameStateController', function($scope, $http){
+app.factory('sendIDToSocket', ['$http', function($http){
+	$http.get('/playerID', function(resp){
+		socket.emit('playerID', {playerID:resp});
+	};
+});
+
+app.controller('gameStateController', function($scope, sendIDToSocket, $http){
 	$scope.instructions = instructions[gameState];
 	$scope.startButtonVisible = true;
 	$scope.entryFormVisible = false;

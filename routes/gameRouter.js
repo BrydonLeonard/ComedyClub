@@ -20,6 +20,10 @@ module.exports = function(){
 		'renderingSubmissions':2
 	}
 
+	router.get('/playerID', function(req, res, next){
+		res.send(req.session.playerID);
+	});
+
 	router.get('/:roomNum', function(req, res, next){
 		if (req.session.playerId)
 			res.render('gameRoom');
@@ -55,7 +59,7 @@ module.exports = function(){
 				if (req.body.data.msgType == msgTypes.startGame)
 				{
 					gameManager.gameStart(req.params.roomNum, function(){
-						res.send('0');
+						res.send(responseTypes.ok);
 					});
 				}else if (req.body.data.msgType == msgTypes.wordSubmission)
 				{

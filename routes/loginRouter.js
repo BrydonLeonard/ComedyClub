@@ -17,14 +17,15 @@ module.exports = function(){
 	      next(err);
 	    }
 	    if (result){
-	      req.session.playerId = String(roomNum)+result.players.length;
+      var playerID = String(roomNum)+result.players.length.toString(36)
+	      req.session.playerId = playerID;
 	      result.players.push({
-	        'playerId': String(roomNum)+result.players.length.toString(36),
+	        'playerId': playerID,
 	        'playerName':playerName,
 	      });
 	      //This may cause problems, not sure if it's being done correctly here
 	      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(){
-	        res.redirect('room/'+req.body.roomNum);//Not sure why roomNum loses its value in the callbacks
+	        res.redirect('room/'+req.body.roomNum);
 	      });
 	    }else{
 	      getAvailableRoomNumber(gameCollection, getRandomRoomCode(), function(newNum){
