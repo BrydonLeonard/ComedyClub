@@ -36,7 +36,7 @@ var storedWords = ['','','',''];
 var gameState = gameStates.ready;
 
 var roomNum = window.location.href.split('/')[window.location.href.split('/').length-1];
-var socket = io('http://localhost:3000');
+var socket = io(':3000');
 
 var getScope = function(){
 	var sel = 'div[id="cont"]';

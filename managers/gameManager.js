@@ -108,7 +108,6 @@ module.exports = function(){
 
 	gameManager.checkNumWords = function(roomNum){
 		gameManager.findRoom(roomNum, function(room){
-			console.log(room.game)
 			if (room.game.num == room.game.maxNum)
 			{
 				setTimeout(gameManager.gameDisplay, 1000*2, roomNum);
