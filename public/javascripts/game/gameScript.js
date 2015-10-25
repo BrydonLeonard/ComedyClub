@@ -54,9 +54,7 @@ socket.on('sentence', function(data){
 
 socket.on('newPlayer', function(data){
 	var scope = getScope();
-	console.log('New player : ' + data.playerName);
 	scope.playerList.push(data.playerName);
-	console.log(data.playerName);
 	scope.$apply();
 });
 
@@ -89,25 +87,25 @@ app.controller('gameStateController', ['$scope', '$http', '$location', '$window'
 	}
 		$http.get('/room/playerId').then(function(resp){
 			socket.emit('playerId', {playerId:resp.data});
-		});
-		$http.get('/room/'+roomNum+'/players').then(function(res){
-			if (!res.data.players){
-				var path = String($location.absUrl());
-				path = path.split('/');
-				var newPath = '';
-				for (var i = 0; i < path.length - 2; i++)
-				{
-					newPath += path[i]+'/';
+			$http.get('/room/'+roomNum+'/players').then(function(res){
+				if (!res.data.players){
+					var path = String($location.absUrl());
+					path = path.split('/');
+					var newPath = '';
+					for (var i = 0; i < path.length - 2; i++)
+					{
+						newPath += path[i]+'/';
+					}
+					$window.location.href = newPath;
 				}
-				console.log(newPath);
-				$window.location.href = newPath;
-			}
-			else{
-				res.data.players.forEach(function(player){
-					$scope.playerList.push(player.playerName);
-				});
-			}
+				else{
+					res.data.players.forEach(function(player){
+						$scope.playerList.push(player.playerName);
+					});
+				}
+			});
 		});
+
 }]);
 
 var ProcessWordEntry = function(words){
