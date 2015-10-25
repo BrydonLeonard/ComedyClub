@@ -25,6 +25,7 @@ module.exports = function(){
 	      });
 	      //This may cause problems, not sure if it's being done correctly here
 	      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(){
+					broadcastNewPlayer(roomNum, playerName);
 	        res.redirect('room/'+req.body.roomNum);
 	      });
 	    }else{
@@ -66,6 +67,11 @@ module.exports = function(){
 
 	  }
 	});
+
+	var broadcastNewPlayer = function(roomNum, playerName)
+	{
+		io.sockets.in(roomNum).emit('newPlayer', {playerName:playerName});
+	}
 
 
 	var getRandomRoomCode = function(){

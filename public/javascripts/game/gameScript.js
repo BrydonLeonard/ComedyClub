@@ -16,7 +16,7 @@ var instructions = [
 	'Enter a transitive verb. <br />This is something that someone can do <b>to</b> someone or something else. <br />Timmy <b>licked</b> a lollipop enthusiastically because it was delicious',
 	'Enter a common noun. <br />This is a <b>thing</b>. <br />Timmy licked <b>a lollipop</b> enthusiastically because it was delicious',
 	'Enter an adverb. <br />This is the manner in which someone does a verb. <br />Timmy licked a lollipop <b>enthusiastically</b> because it was delicious',
-	'Enter a <b>WORD</b>. <br />Timmy licked a lollipop enthusiastically <b>because it was delicious</b>',
+	'Enter some <b>#flavourText</b>. <br />Timmy licked a lollipop enthusiastically <b>because it was delicious</b>',
 	'null',
 	'Now waiting for the other players']
 
@@ -52,13 +52,20 @@ socket.on('sentence', function(data){
 	scope.$apply();
 });
 
+socket.on('newPlayer', function(data){
+	var scope = getScope();
+	console.log('New player : ' + data.playerName);
+	scope.playerList.push(data.playerName);
+	console.log(data.playerName);
+	scope.$apply();
+});
+
 socket.on('gameStateChange', function(data){
 	var scope = getScope();
 	if (data.state === serverStates.renderingSubmissions){
 		ChangeGameStateTo(gameStates.displaying, scope);
 		scope.entryFormVisible = false;
 	}else	if (data.state === serverStates.pregame){
-		console.log(data.state);
 		ChangeGameStateTo(gameStates.ready, scope);
 		scope.startButtonVisible = true;
 		scope.entryFormVisible = false;
@@ -70,26 +77,41 @@ socket.on('gameStateChange', function(data){
 	scope.$apply();
 });
 
-app.factory('sendIDToSocket', ['$http', function($http){
-	$http.get('/playerID', function(resp){
-		socket.emit('playerID', {playerID:resp});
-	};
-});
-
-app.controller('gameStateController', function($scope, sendIDToSocket, $http){
+app.controller('gameStateController', ['$scope', '$http', '$location', '$window',  function($scope, $http, $location, $window){
 	$scope.instructions = instructions[gameState];
 	$scope.startButtonVisible = true;
 	$scope.entryFormVisible = false;
+	$scope.playerList = [];
 	$scope.advanceGameState = function(){AdvanceGameState($scope,$http);}
 	$scope.processWordEntry = function(words){
 		ProcessWordEntry(words);
 		AdvanceGameState($scope, $http);
 	}
-});
+		$http.get('/room/playerId').then(function(resp){
+			socket.emit('playerId', {playerId:resp.data});
+		});
+		$http.get('/room/'+roomNum+'/players').then(function(res){
+			if (!res.data.players){
+				var path = String($location.absUrl());
+				path = path.split('/');
+				var newPath = '';
+				for (var i = 0; i < path.length - 2; i++)
+				{
+					newPath += path[i]+'/';
+				}
+				console.log(newPath);
+				$window.location.href = newPath;
+			}
+			else{
+				res.data.players.forEach(function(player){
+					$scope.playerList.push(player.playerName);
+				});
+			}
+		});
+}]);
 
 var ProcessWordEntry = function(words){
 	storedWords[gameState-1] = words;
-	console.log(roomNum);
 }
 
 var SendWordsToServer = function($http)

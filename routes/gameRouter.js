@@ -20,32 +20,55 @@ module.exports = function(){
 		'renderingSubmissions':2
 	}
 
-	router.get('/playerID', function(req, res, next){
-		res.send(req.session.playerID);
+	router.get('/playerId', function(req, res, next){
+		res.send(req.session.playerId);
 	});
 
 	router.get('/:roomNum', function(req, res, next){
-		if (req.session.playerId)
-			res.render('gameRoom');
-		else res.redirect('/');
+		try{
+				if (req.session.playerId)
+					gameManager.findRoom(req.params.roomNum, function(room){
+						var inArr = false;
+						if (room){
+						room.players.forEach(function(player){
+							if (player.playerId = req.session.playerId)
+								inArr = true;
+						});
+						if (inArr)
+							res.render('gameRoom');
+						else
+							res.redirect('/');
+					}else {
+						res.redirect('/');
+					}});
+				else res.redirect('/');
+			}catch(err){
+			res.redirect('/');
+		}
 	});
 
 	router.get('/:roomNum/config', function(req, res, next){
 		gameManager.findRoom(req.params.roomNum, function(room){
-			req.send(room);
+			if (room)
+				res.send(room);
+			else res.redirect('/');
 		});
 	});
 
 	router.get('/:roomNum/players', function(req, res, next){
 		gameManager.findRoom(req.params.roomNum, function(room){
-			req.send(room.players);
+			if (room)
+				res.send({players:room.players});
+			else res.redirect('/');
 		});
 	});
 
 	router.get('/:roomNum/state', function(req, res ,next){
 		var gameCollection = require('../db/dbConfig')('games');
 		gameManager.findRoom(req.params.roomNum, function(room){
-			req.send(room.game.state);
+			if (room)
+				res.send(room.game.state);
+			else res.redirect('/');
 		});
 	});
 

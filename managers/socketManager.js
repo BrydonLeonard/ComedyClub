@@ -5,14 +5,17 @@ module.exports = function(server){
 		socket.on('roomConnect', function(data){
 			socket.join(data.roomNum);
 		});
-		socket.on('playerID', function(data){
-			var db = require('../db/dbConfig');
-			db.update({'players.playerID':data}, {$set:{'players.$':socket.id}});
+		socket.on('playerId', function(data){
+			var db = require('../db/dbConfig')('games');;
+			db.update({'players.playerId':data.playerId}, {$set:{'players.$.socketId':socket.id}});
 		});
 		socket.on('disconnect', function(data){
-			var dbManager = require('../managers/dbmanager')(require('../db/dbConfig')('games'));
-			dbManager.removePlayer(data);
-			dbManager.checkNumPlayers();
+			var collection = require('../db/dbConfig')('games');
+			var dbManager = require('./dbManager')(collection);
+			dbManager.removePlayer(socket.id, function(roomNum){
+				dbManager.checkNumPlayers(roomNum);
+			});
 		});
+	});
 	return io;
 }

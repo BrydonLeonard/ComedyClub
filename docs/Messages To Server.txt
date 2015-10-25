@@ -6,7 +6,8 @@ Room Requests
 		Replies with the room entry in the DB
 
 	GET /room/roomNum/players
-		Replies with the players in a room
+		Replies with the players in a room in the following format
+			{players:[array,of,players]}
 
 	GET /room/roomNum/state
 		Replies with the room's current game state
@@ -26,7 +27,7 @@ Room Requests
 			Invalid request: "-1"
 			Error occurred: "-2"
 
-	GET /room/roomNum/playerID
+	GET /room/roomNum/playerId
 		Returns the player ID associated with the session
 
 	GET /room/roomNum/numSentences
@@ -50,6 +51,8 @@ Pusher events
 				- sentence: New sentence to be displayed by client
 			'gameStateChange'
 				- state: New state of the game manager
+			'newPlayer'
+				- playerName: Name of new player
 		Client emits:
 			'roomConnect'
 				- roomNum: Room number to join

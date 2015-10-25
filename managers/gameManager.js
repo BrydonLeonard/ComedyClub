@@ -41,7 +41,6 @@ module.exports = function(){
 						callback(responseTypes.error);
 					}
 					else {
-						setTimeout(gameManager.gameDisplay, 1000*20, roomNum);
 						gameManager.triggerStateChange(roomNum, gameStates.waitingSubmissions);
 						callback(responseTypes.ok);
 					}
@@ -90,6 +89,7 @@ module.exports = function(){
 			game.verb.push(words.verb);
 			game.adverb.push(words.adverb);
 			game.flavour.push(words.flavour);
+			game.num += 1;
 
 			var wordCollection = require('../db/dbConfig.js')('words');
 			wordCollection.insert(words);
@@ -99,10 +99,21 @@ module.exports = function(){
 					if (err)
 						callback(responseTypes.error);
 					else{
+						gameManager.checkNumWords(roomNum);
 						callback(responseTypes.ok);
 					}
 				});
 		})
+	}
+
+	gameManager.checkNumWords = function(roomNum){
+		gameManager.findRoom(roomNum, function(room){
+			console.log(room.game)
+			if (room.game.num == room.game.maxNum)
+			{
+				setTimeout(gameManager.gameDisplay, 1000*2, roomNum);
+			}
+		});
 	}
 
 	gameManager.configForDisplay = function(roomNum, numSentences, callback){
@@ -172,9 +183,9 @@ module.exports = function(){
 
 	gameManager.constructSentence = function(){
 		var sentence = '';
-		for (var i = 0; i < arguments.length-1; i++)
+		for (var i = 0; i < arguments.length; i++)
 			sentence = sentence + ' ' + arguments[i];
-		sentence = sentence + ' because ' + arguments[arguments.length-1] + '.';
+		sentence = sentence + '.';
 		return sentence;
 	}
 
