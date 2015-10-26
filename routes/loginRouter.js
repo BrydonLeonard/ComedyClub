@@ -19,12 +19,13 @@ module.exports = function(){
 	    if (result){
       var playerID = String(roomNum)+result.players.length.toString(36)
 	      req.session.playerId = playerID;
-	      result.players.push({
+				var newPlayer = {
 	        'playerId': playerID,
 	        'playerName':playerName,
-	      });
+	      }
+	      result.players.push(newPlayer);
 	      //This may cause problems, not sure if it's being done correctly here
-	      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(err){
+	      gameCollection.update({'roomNum':roomNum}, {'$push':{'players':newPlayer}}, function(err){
 					if (err){
 						console.log(err)
 						res.redirect('/');
