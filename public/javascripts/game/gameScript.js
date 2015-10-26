@@ -86,6 +86,7 @@ app.controller('gameStateController', ['$scope', '$http', '$location', '$window'
 		AdvanceGameState($scope, $http);
 	}
 		$http.get('/room/playerId').then(function(resp){
+			console.log(resp);
 			socket.emit('playerId', {playerId:resp.data});
 			$http.get('/room/'+roomNum+'/players').then(function(res){
 				if (!res.data.players){

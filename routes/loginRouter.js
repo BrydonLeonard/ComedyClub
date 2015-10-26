@@ -24,9 +24,14 @@ module.exports = function(){
 	        'playerName':playerName,
 	      });
 	      //This may cause problems, not sure if it's being done correctly here
-	      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(){
-					broadcastNewPlayer(roomNum, playerName);
-	        res.redirect('room/'+req.body.roomNum);
+	      gameCollection.update({'roomNum':roomNum}, {'$set':result}, function(err){
+					if (err){
+						console.log(err)
+						res.redirect('/');
+					}else{
+						broadcastNewPlayer(roomNum, playerName);
+		        res.redirect('room/'+roomNum);
+					}
 	      });
 	    }else{
 	      getAvailableRoomNumber(gameCollection, getRandomRoomCode(), function(newNum){
