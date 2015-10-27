@@ -12,7 +12,8 @@ module.exports = function(server){
 		socket.on('disconnect', function(data){
 			var collection = require('../db/dbConfig')('games');
 			var dbManager = require('./dbManager')(collection);
-			dbManager.removePlayer(socket.id, function(roomNum){
+			dbManager.removePlayer(socket.id, function(roomNum, playerNum){
+				io.sockets.in(roomNum).emit('leavePlayer', {playerNum:playerNum});
 				dbManager.checkNumPlayers(roomNum);
 			});
 		});

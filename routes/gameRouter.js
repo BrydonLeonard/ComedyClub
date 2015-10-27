@@ -89,7 +89,7 @@ module.exports = function(){
 					if (req.body.data.words == null)
 						res.send(responseTypes.invalid)
 					else{
-						gameManager.submitWords(req.params.roomNum, req.body.data.words, function(responseMessage){
+						gameManager.submitWords(req.params.roomNum, req.body.data.words, req.body.data.playerId, function(responseMessage){
 							res.send(responseMessage);
 						});
 					}

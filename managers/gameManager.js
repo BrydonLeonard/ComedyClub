@@ -59,29 +59,31 @@ module.exports = function(){
 
 	gameManager.nextSentence = function(roomNum){
 		gameManager.findRoom(roomNum, function(room){
-			if (room.game.num < room.game.maxNum-1){
-				var gameCollection = require('../db/dbConfig')('games');
-				gameCollection.update({'roomNum':roomNum},{
-					$inc:{'game.num':1}
-				});
-				gameManager.findRoom(roomNum, function(rm){
-					gameManager.broadcastSentence(rm);
-					setTimeout(gameManager.nextSentence, 1000*15, roomNum);
-				});
-			}else{
-				var gameCollection = require('../db/dbConfig')('games');
-				gameCollection.update({'roomNum':roomNum}, {$set:{
-					'game.state':gameStates.pregame,
-					'game.num':0,
-					'game.maxNum':0
-				}},function(){
-						gameManager.triggerStateChange(roomNum, gameStates.pregame);
-				});
+			if (room){
+				if (room.game.num < room.game.maxNum-1){
+					var gameCollection = require('../db/dbConfig')('games');
+					gameCollection.update({'roomNum':roomNum},{
+						$inc:{'game.num':1}
+					});
+					gameManager.findRoom(roomNum, function(rm){
+						gameManager.broadcastSentence(rm);
+						setTimeout(gameManager.nextSentence, 1000*15, roomNum);
+					});
+				}else{
+					var gameCollection = require('../db/dbConfig')('games');
+					gameCollection.update({'roomNum':roomNum}, {$set:{
+						'game.state':gameStates.pregame,
+						'game.num':1,
+						'game.maxNum':0
+					}},function(){
+							gameManager.triggerStateChange(roomNum, gameStates.pregame);
+					});
+				}
 			}
 		});
 	}
 
-	gameManager.submitWords = function(roomNum, words, callback){
+	gameManager.submitWords = function(roomNum, words, playerId, callback){
 		var gameCollection = require('../db/dbConfig.js')('games');
 		gameManager.findRoom(roomNum, function(room){
 			game = room.game;
@@ -93,6 +95,8 @@ module.exports = function(){
 
 			var wordCollection = require('../db/dbConfig.js')('words');
 			wordCollection.insert(words);
+
+			gameManager.broadcastPlayerSubmitted(roomNum, playerId);
 
 			gameCollection.update({"roomNum":roomNum},
 				{$set:{'game':game}},function(err){
@@ -143,6 +147,18 @@ module.exports = function(){
 	gameManager.triggerStateChange = function(roomNum, newState){
 		console.log('Room ' + roomNum + ' triggering state change to ' + gameManager.getKeyFromValue(gameStates, newState));
 		io.sockets.in(roomNum).emit('gameStateChange', {state:newState});
+	}
+
+	gameManager.broadcastPlayerSubmitted = function(roomNum, playerId)
+	{
+		var i = -1;
+		gameManager.findRoom(roomNum, function(room){
+			room.players.forEach(function(player){
+				i++
+				if (player.playerId == playerId)
+					io.sockets.in(roomNum).emit('playerSubmitted', {playerNum:i});
+				});
+			});
 	}
 
 	gameManager.generateSentences = function(roomNum, callback){

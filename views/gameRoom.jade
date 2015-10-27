@@ -27,5 +27,7 @@ block content
 					div
 						h4 
 							u Players
-						h4(ng-repeat="playerName in playerList track by $index")
-							small {{playerName}}
+						h4(ng-repeat="(ind, playerName) in playerList track by $index")
+							small {{playerName}}     
+							span(class="glyphicon glyphicon-ok" ng-show="playerSubmitted[ind] === true" style="color:green")
+							span(class="glyphicon glyphicon-remove" ng-show="playerSubmitted[ind] === false" style="color:red")

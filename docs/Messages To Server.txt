@@ -53,6 +53,10 @@ Pusher events
 				- state: New state of the game manager
 			'newPlayer'
 				- playerName: Name of new player
+			'leavePlayer'
+				- playerNum: Position of player in array that left
+			'playerSubmitted'
+				- playerNum: Position of player in array that just submitted
 		Client emits:
 			'roomConnect'
 				- roomNum: Room number to join
